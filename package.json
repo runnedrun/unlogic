@@ -5,8 +5,10 @@
   "dependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
+    "react-spreadsheet": "^0.4.46",
     "rxfire": "^3.10.1",
-    "rxjs": "^6.5.4"
+    "rxjs": "^6.5.4",
+    "underscore": "^1.10.2"
   },
   "prettier": {
     "trailingComma": "es5",

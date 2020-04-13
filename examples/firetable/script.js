@@ -1,10 +1,11 @@
-const andrew = '26YMauciy53gEik7zGEy'
-const david = '3rmemIzSrwR5ZJ5L3EYx'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 const firebase = require('firebase')
 require('firebase/firestore')
+const { WithData } = require('unlogic-ui')
 
-const { buildFirestoreDataHandler } = require('unlogic')
+const { buildFirestoreDataHandler, buildMemoryDataHandler } = require('unlogic')
 // const unlogicUI = require('unlogic-ui')
 
 firebase.initializeApp({
@@ -19,23 +20,26 @@ firebase.initializeApp({
 
 const dataHandler = buildFirestoreDataHandler(firebase.firestore())
 
+const mem = buildMemoryDataHandler()
+mem.next('projects')
+
 const creatorId = dataHandler
-  .collection('projects')
+  .collection(mem)
   .doc('n6jWl9Tgx0UONMWrz01x')
   .field('creator')
 
-const reader = dataHandler.collection('users').doc(creatorId)
+const userData = dataHandler.collection('users').data(creatorId)
 
-const subscriber = reader.subscribe(_ => console.log(_.data()))
+const Display = WithData(({ userData }) => {
+  return <div>{userData.name}</div>
+})
 
-window.unsub = () => subscriber.unsubscribe()
-
-let tog = 0
-window.toggle = () => {
-  firebase
-    .firestore()
-    .collection('projects')
-    .doc('n6jWl9Tgx0UONMWrz01x')
-    .set({ creator: tog % 2 ? andrew : david })
-  tog++
+const Root = () => {
+  return (
+    <div>
+      <Display userData={userData} />
+    </div>
+  )
 }
+
+ReactDOM.render(<Root/>, document.getElementById('root'))
