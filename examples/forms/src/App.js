@@ -7,11 +7,12 @@ import {
 } from 'react-router-dom'
 import SignIn from './auth/SignIn'
 import SignUp from './auth/SignUp'
+import OpportunityList from './opportunities-list/OpportunityList'
 
 const firebase = require('firebase')
 require('firebase/firestore')
-// const { WithData } = require('unlogic-ui')
-const { WithData } = require('../../../unlogic-ui')
+const { WithData } = require('unlogic-ui')
+// const { WithData } = require('../../../dist/ui/unlogic-ui')
 
 // const {
 //   buildFirestoreDataHandler,
@@ -23,8 +24,7 @@ const {
   buildFirestoreDataHandler,
   buildMemoryDataHandler,
   buildCurrentUserListener,
-} = require('../../../unlogic')
-// const unlogicUI = require('unlogic-ui')
+} = require('unlogic')
 
 firebase.initializeApp({
   apiKey: 'AIzaSyAMFOUclnu3bWpqtV5Mu_1U2GPK85VMpTE',
@@ -37,9 +37,23 @@ firebase.initializeApp({
 })
 
 const dataHandler = buildFirestoreDataHandler(firebase.firestore())
+const currentUserObs = buildCurrentUserListener(firebase)
 
-const mem = buildMemoryDataHandler()
-mem.next('projects')
+const D = {
+  currentUserCompanyId: () =>
+    dataHandler
+      .collection('users')
+      .doc(currentUserObs.id)
+      .data('companyId'),
+  opportunitiesForCurrentUser: () =>
+    dataHandler
+      .collection('opportunities')
+      .where('postingCompany', '==', D.currentUserCompanyId()),
+}
+
+D.opportunitiesForCurrentUser().subscribe(console.log)
+
+window.D = D
 
 // This site has 3 pages, all of which are rendered
 // dynamically in the browser (not server rendered).
@@ -50,21 +64,24 @@ mem.next('projects')
 // making sure things like the back button and bookmarks
 // work properly.
 
-const RoutesWithAuth = WithData(({ currentUser }) => {
-  console.log('currentUser', currentUser)
+const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
+  if (!dataSources.currentUser.firstResultReturned) {
+    return <span />
+  }
+
   return (
     <Router>
       <Switch>
         <Route path="/signin">
-          <SignIn />
+          <SignIn auth={firebase.auth()} />
         </Route>
         <Route path="/signup">
-          <SignUp />
+          <SignUp auth={firebase.auth()} />
         </Route>
         {currentUser ? (
-          <div>
+          <Route>
             <Route exact path="/">
-              <Home />
+              <OpportunityList />
             </Route>
             <Route path="/about">
               <About />
@@ -72,13 +89,13 @@ const RoutesWithAuth = WithData(({ currentUser }) => {
             <Route path="/dashboard">
               <Dashboard />
             </Route>
-          </div>
+          </Route>
         ) : (
           <Route
             render={({ location }) => (
               <Redirect
                 to={{
-                  pathname: '/login',
+                  pathname: '/signin',
                   state: { from: location },
                 }}
               />
@@ -91,7 +108,7 @@ const RoutesWithAuth = WithData(({ currentUser }) => {
 })
 
 export default function BasicExample() {
-  return <RoutesWithAuth />
+  return <RoutesWithAuth currentUser={currentUserObs} />
 }
 
 // You can think of these components as "pages"

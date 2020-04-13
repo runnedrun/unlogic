@@ -27,13 +27,12 @@ module.exports.WithData = Component => {
         Object.keys(this.props).map(propName => {
           const prop = this.props[propName]
           if (prop.subscribe && !prop.__withDataMounted) {
-            console.log('mounding??')
             prop.__withDataMounted = true
             return new Promise(resolve => {
               this.dataSources[propName] = prop
               this.subscriptions[propName] = prop.subscribe(result => {
+                prop.firstResultReturned = true
                 this.setState(state => {
-                  console.log('setting agian?', result)
                   state.data[propName] = result
                   return state
                 })

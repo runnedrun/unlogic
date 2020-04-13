@@ -44,10 +44,25 @@ const useStyles = makeStyles((theme) => ({
   submit: {
     margin: theme.spacing(3, 0, 2),
   },
+  errorText: {
+    color: theme.palette.error.main,
+  },
 }));
 
-export default function SignIn() {
+export default function SignIn({ auth }) {
   const classes = useStyles();
+
+  const [email, setEmail] = React.useState()
+  const [password, setPassword] = React.useState()
+  const [error, setError] = React.useState()
+
+  const submit = () => {    
+    auth.signInWithEmailAndPassword(email, password).then(() => {
+      window.location = '/'
+    }).catch((error) => {
+      setError(error.message)
+    })
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -60,6 +75,13 @@ export default function SignIn() {
           Sign in
         </Typography>
         <form className={classes.form} noValidate>
+          {error ? (              
+              <Typography variant="body1" className={classes.errorText}>
+                {error}
+              </Typography>
+            ) : (
+              <span />
+            )}
           <TextField
             variant="outlined"
             margin="normal"
@@ -70,6 +92,7 @@ export default function SignIn() {
             name="email"
             autoComplete="email"
             autoFocus
+            onChange={_ => setEmail(_.target.value)}
           />
           <TextField
             variant="outlined"
@@ -81,17 +104,18 @@ export default function SignIn() {
             type="password"
             id="password"
             autoComplete="current-password"
+            onChange={_ => setPassword(_.target.value)}
           />
           <FormControlLabel
             control={<Checkbox value="remember" color="primary" />}
             label="Remember me"
           />
           <Button
-            type="submit"
             fullWidth
             variant="contained"
             color="primary"
             className={classes.submit}
+            onClick={submit}
           >
             Sign In
           </Button>
@@ -102,7 +126,7 @@ export default function SignIn() {
               </Link>
             </Grid>
             <Grid item>
-              <Link href="#" variant="body2">
+              <Link href="/signup" variant="body2">
                 {"Don't have an account? Sign Up"}
               </Link>
             </Grid>

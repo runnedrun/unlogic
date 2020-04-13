@@ -28,8 +28,16 @@ const buildFirestoreDataHandler = firestoreOrObs => {
         return collection(firestore)
       } else if (firestore.collection) {
         return doc(firestore)
+      } else if (firestore.onSnapshot) {
+        return collection(firestore).pipe(
+          map(collection => {
+            return collection.map(snapshot =>
+              Object.assign(snapshot.data(), { id: snapshot.idid })
+            )
+          })
+        )
       } else {
-        return Observable.throwError("Can't subscribe to the root")
+        return Observable.throw("Can't subscribe to the root")
       }
     })
   )
@@ -83,10 +91,10 @@ const buildFirestoreDataHandler = firestoreOrObs => {
     )
   }
 
-  dataObs.data = pathObs => {
-    return dataObs.doc(pathObs).pipe(
+  dataObs.data = fieldName => {
+    return dataObs.pipe(
       map(snapshot => {
-        return snapshot.data()
+        return fieldName ? snapshot.data()[fieldName] : snapshot.data()
       })
     )
   }

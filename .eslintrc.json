@@ -20,6 +20,10 @@
       "modules": true
     }
   },
+  "globals": {
+    "D": false,
+    "M": false
+  },
   "plugins": ["react", "prettier"],
   "rules": {
     "prettier/prettier": ["error", { "semi": false, "singleQuote": true }],
