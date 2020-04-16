@@ -91,10 +91,34 @@ const buildFirestoreDataHandler = firestoreOrObs => {
     )
   }
 
+  dataObs.set = (...args) =>
+    firestoreObs.toPromise().then(firestore => firestore.set(...args))
+
+  dataObs.add = (...args) =>
+    firestoreObs.toPromise().then(firestore => firestore.add(...args))
+
+  const buildPipeFn = obs => {
+    const _oldPipe = obs.pipe
+
+    obs.pipe = (...args) => {
+      const newObs = _oldPipe.call(obs, ...args)
+      newObs.set = obs.set
+      newObs.add = obs.add
+      newObs.pipe = buildPipeFn(newObs)
+      return newObs
+    }
+  }
+
+  buildPipeFn(dataObs)
+
   dataObs.data = fieldName => {
     return dataObs.pipe(
       map(snapshot => {
-        return fieldName ? snapshot.data()[fieldName] : snapshot.data()
+        return fieldName
+          ? (snapshot.data() || {})[fieldName]
+          : snapshot.data()
+          ? Object.assign(snapshot.data(), { id: snapshot.id })
+          : snapshot.data()
       })
     )
   }

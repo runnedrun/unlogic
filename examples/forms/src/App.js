@@ -8,10 +8,18 @@ import {
 import SignIn from './auth/SignIn'
 import SignUp from './auth/SignUp'
 import OpportunityList from './opportunities-list/OpportunityList'
+import { combineLatest } from 'rxjs'
+import { map } from 'rxjs/operators'
+import Dashboard from './components/Dashboard'
+import NewOpportunity from './new-opportunity/NewOpportunity'
+import NewOpportunityType from './new-opportunity-type/NewOpportunityType'
+import EditOpportunity from './edit-opportunity/EditOpportunity'
+import { MainListItems } from './components/ListItems'
 
 const firebase = require('firebase')
 require('firebase/firestore')
 const { WithData } = require('unlogic-ui')
+const { flatten } = require('underscore')
 // const { WithData } = require('../../../dist/ui/unlogic-ui')
 
 // const {
@@ -40,18 +48,34 @@ const dataHandler = buildFirestoreDataHandler(firebase.firestore())
 const currentUserObs = buildCurrentUserListener(firebase)
 
 const D = {
+  opportunity: (id) => dataHandler.collection('opportunity').doc(id),
+  opportunityTypeForOpportunity: (opportunityId) => D.opportunityType(D.opportunity(opportunityId).data('type')),
+  opportunityType: (id) => dataHandler.collection('opportunityTypes').doc(id),
+  opportunityTypesRaw: () => dataHandler.collection('opportunityTypes'),
+  opportunityTypes: () =>
+    dataHandler
+      .collection('opportunityTypes')
+      .pipe(map(_ => _.map(_ => Object.assign(_.data(), { id: _.id })))),
+  currentUserData: () =>
+    dataHandler
+      .collection('users')
+      .doc(currentUserObs.id)
+      .data(),
   currentUserCompanyId: () =>
     dataHandler
       .collection('users')
       .doc(currentUserObs.id)
       .data('companyId'),
   opportunitiesForCurrentUser: () =>
-    dataHandler
-      .collection('opportunities')
-      .where('postingCompany', '==', D.currentUserCompanyId()),
+    combineLatest(
+      dataHandler
+        .collection('opportunities')
+        .where('postingUser', '==', currentUserObs.id),
+      dataHandler
+        .collection('opportunities')
+        .where('postingCompany', '==', D.currentUserCompanyId())
+    ).pipe(map(_ => flatten(_))),
 }
-
-D.opportunitiesForCurrentUser().subscribe(console.log)
 
 window.D = D
 
@@ -80,15 +104,29 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
         </Route>
         {currentUser ? (
           <Route>
-            <Route exact path="/">
-              <OpportunityList />
-            </Route>
-            <Route path="/about">
-              <About />
-            </Route>
-            <Route path="/dashboard">
-              <Dashboard />
-            </Route>
+            <Dashboard
+              mainListItems={
+                <MainListItems
+                  currentUser={D.currentUserData()}
+                  opportunityTypes={D.opportunityTypes()}
+                />
+              }
+            >
+              <Route exact path="/">
+                <OpportunityList
+                  opportunities={D.opportunitiesForCurrentUser()}
+                />
+              </Route>
+              <Route path="/opportunity/new">
+                <NewOpportunity />
+              </Route>
+              <Route path="/opportunity/edit/:opportunityId">
+                <EditOpportunity />
+              </Route>
+              <Route path="/opportunity-type/:opportunityTypeId">
+                <NewOpportunityType />
+              </Route>
+            </Dashboard>
           </Route>
         ) : (
           <Route
@@ -109,31 +147,4 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
 
 export default function BasicExample() {
   return <RoutesWithAuth currentUser={currentUserObs} />
-}
-
-// You can think of these components as "pages"
-// in your app.
-
-function Home() {
-  return (
-    <div>
-      <h2>Home</h2>
-    </div>
-  )
-}
-
-function About() {
-  return (
-    <div>
-      <h2>About</h2>
-    </div>
-  )
-}
-
-function Dashboard() {
-  return (
-    <div>
-      <h2>Dashboard</h2>
-    </div>
-  )
 }

@@ -156,7 +156,7 @@ export default function Dashboard({
             noWrap
             className={classes.title}
           >
-            Dashboard
+            Available Opportunities
           </Typography>
           <IconButton color="inherit">
             {notifications.length ? (
@@ -192,11 +192,11 @@ export default function Dashboard({
           <Grid container spacing={3}>
             {children}
           </Grid>
-          <Box pt={4}>
-            <Copyright />
-          </Box>
         </Container>
       </main>
+      <Box pt={4}>
+        <Copyright />
+      </Box>
     </div>
   )
 }

@@ -26,7 +26,7 @@ module.exports.WithData = Component => {
       const allDataSourcesMounted = Promise.all(
         Object.keys(this.props).map(propName => {
           const prop = this.props[propName]
-          if (prop.subscribe && !prop.__withDataMounted) {
+          if (prop && prop.subscribe && !prop.__withDataMounted) {
             prop.__withDataMounted = true
             return new Promise(resolve => {
               this.dataSources[propName] = prop
@@ -52,9 +52,10 @@ module.exports.WithData = Component => {
     }
 
     unmountDataSources() {
-      Object.keys(this.subscriptions).forEach(propName =>
-        this.DataSources[propName].unsubscribe()
-      )
+      Object.keys(this.subscriptions).forEach(propName => {
+        this.subscriptions[propName].unsubscribe()
+        this.dataSources[propName].__withDataMounted = false
+      })
     }
 
     render() {
