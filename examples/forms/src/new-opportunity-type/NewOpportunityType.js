@@ -9,6 +9,8 @@ import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
 import TextField from '@material-ui/core/TextField'
 import { useParams } from 'react-router-dom'
+import { useHistory } from 'react-router-dom'
+
 const FormBuilder = require('../components/form-builder/index')
 
 const { useState } = React
@@ -22,6 +24,7 @@ const EditOpportunityType = WithData(({ opportunityType, dataSources }) => {
   const json = (opportunityType || {}).formJSON
   const data = JSON.parse(json || '[]')
   const [oppportunityName, updateOpportunityName] = useState('')
+  const history = useHistory()
 
   const save = () => {
     dataSources.opportunityType.set(
@@ -37,8 +40,8 @@ const EditOpportunityType = WithData(({ opportunityType, dataSources }) => {
       .add({
         name: oppportunityName,
       })
-      .then(resp => {
-        console.log(resp)
+      .then(ref => {
+        history.push(ref.id)
       })
   }
 
@@ -54,7 +57,7 @@ const EditOpportunityType = WithData(({ opportunityType, dataSources }) => {
       </Grid>
     </Grid>
   ) : (
-    <Grid container direction="row"  spacing={2} className={classes.actionBar}>
+    <Grid container direction="row" spacing={2} className={classes.actionBar}>
       <Grid item>
         <Button onClick={create} variant="contained" color="primary">
           Create

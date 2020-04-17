@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
 const OpportunityList = WithData(({ opportunities }) => {
   const classes = useStyles()
   opportunities = opportunities || []
-  console.log("ope", opportunities)
+
   return (
     <Grid container direction="row" spacing={5}>
       {opportunities.map(opportunity => {

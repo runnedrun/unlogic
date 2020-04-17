@@ -1,5 +1,6 @@
 const React = require('React')
 const _ = require('underscore')
+import { v4 as uuidv4 } from 'uuid'
 
 module.exports.WithData = Component => {
   return class newComponent extends React.Component {
@@ -8,6 +9,8 @@ module.exports.WithData = Component => {
       this.subscriptions = {}
       this.state = { data: {} }
       this.dataSources = {}
+      this.mountedForProp = {}
+      this.lastMountingPromise = Promise.resolve()
     }
 
     componentDidMount() {
@@ -26,8 +29,9 @@ module.exports.WithData = Component => {
       const allDataSourcesMounted = Promise.all(
         Object.keys(this.props).map(propName => {
           const prop = this.props[propName]
-          if (prop && prop.subscribe && !prop.__withDataMounted) {
-            prop.__withDataMounted = true
+          prop.__uuid = prop.__uuid || uuidv4()
+          if (prop && prop.subscribe && !this.mountedForProp[prop.__uuid]) {
+            this.mountedForProp[prop.__uuid] = true
             return new Promise(resolve => {
               this.dataSources[propName] = prop
               this.subscriptions[propName] = prop.subscribe(result => {
@@ -40,15 +44,17 @@ module.exports.WithData = Component => {
               })
             })
           } else {
-            return Promise.resolve({})
+            return Promise.resolve()
           }
         })
       )
 
-      allDataSourcesMounted.then(() => {
-        !this.state.allDataSourcesMounted &&
-          this.setState({ allDataSourcesMounted: true })
-      })
+      this.lastMountingPromise = this.lastMountingPromise.then(() =>
+        allDataSourcesMounted.then(() => {
+          !this.state.allDataSourcesMounted &&
+            this.setState({ allDataSourcesMounted: true })
+        })
+      )
     }
 
     unmountDataSources() {

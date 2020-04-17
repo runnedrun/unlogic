@@ -48,9 +48,10 @@ const dataHandler = buildFirestoreDataHandler(firebase.firestore())
 const currentUserObs = buildCurrentUserListener(firebase)
 
 const D = {
-  opportunity: (id) => dataHandler.collection('opportunity').doc(id),
-  opportunityTypeForOpportunity: (opportunityId) => D.opportunityType(D.opportunity(opportunityId).data('type')),
-  opportunityType: (id) => dataHandler.collection('opportunityTypes').doc(id),
+  opportunity: id => dataHandler.collection('opportunities').doc(id),
+  opportunityTypeForOpportunity: opportunityId =>
+    D.opportunityType(D.opportunity(opportunityId).data('type')),
+  opportunityType: id => dataHandler.collection('opportunityTypes').doc(id),
   opportunityTypesRaw: () => dataHandler.collection('opportunityTypes'),
   opportunityTypes: () =>
     dataHandler
@@ -75,6 +76,7 @@ const D = {
         .collection('opportunities')
         .where('postingCompany', '==', D.currentUserCompanyId())
     ).pipe(map(_ => flatten(_))),
+  opportunities: () => dataHandler.collection('opportunities'),
 }
 
 window.D = D
@@ -118,7 +120,7 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
                 />
               </Route>
               <Route path="/opportunity/new">
-                <NewOpportunity />
+                <NewOpportunity currentUserId={currentUserObs.id} opportunityTypes={D.opportunityTypes()} />
               </Route>
               <Route path="/opportunity/edit/:opportunityId">
                 <EditOpportunity />
