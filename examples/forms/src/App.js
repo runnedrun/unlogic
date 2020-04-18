@@ -14,8 +14,9 @@ import Dashboard from './components/Dashboard'
 import NewOpportunity from './new-opportunity/NewOpportunity'
 import NewOpportunityType from './new-opportunity-type/NewOpportunityType'
 import EditOpportunity from './edit-opportunity/EditOpportunity'
+import ViewOpportunity from './view-opportunity/ViewOpportunity'
 import { MainListItems } from './components/ListItems'
-import { ConfirmProvider } from 'material-ui-confirm';
+import { ConfirmProvider } from 'material-ui-confirm'
 
 const firebase = require('firebase')
 require('firebase/firestore')
@@ -56,8 +57,7 @@ const D = {
   opportunityTypesRaw: () => dataHandler.collection('opportunityTypes'),
   opportunityTypes: () =>
     dataHandler
-      .collection('opportunityTypes')
-      .pipe(map(_ => _.map(_ => Object.assign(_.data(), { id: _.id })))),
+      .collection('opportunityTypes'),
   currentUserData: () =>
     dataHandler
       .collection('users')
@@ -69,18 +69,21 @@ const D = {
       .doc(currentUserObs.id)
       .data('companyId'),
   opportunitiesForCurrentUser: () =>
-    combineLatest(
-      dataHandler
-        .collection('opportunities')
-        .where('postingUser', '==', currentUserObs.id),
-      dataHandler
-        .collection('opportunities')
-        .where('postingCompany', '==', D.currentUserCompanyId())
-    ).pipe(map(_ => flatten(_))),
+    dataHandler
+      .collection('opportunities')
+      .where('postingUser', '==', currentUserObs.id),
+  // combineLatest(
+  //   ,
+  //   dataHandler
+  //     .collection('opportunities')
+  //     .where('postingCompany', '==', D.currentUserCompanyId())
+  // ).pipe(map(_ => flatten(_))),
   opportunities: () => dataHandler.collection('opportunities'),
 }
 
+// todo actually make this imported instead of on the window
 window.D = D
+window.currentUserObs = currentUserObs
 
 // This site has 3 pages, all of which are rendered
 // dynamically in the browser (not server rendered).
@@ -121,13 +124,19 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
                     opportunities={D.opportunitiesForCurrentUser()}
                   />
                 </Route>
-                <Route path="/opportunity/new">
-                  <NewOpportunity currentUserId={currentUserObs.id} opportunityTypes={D.opportunityTypes()} />
+                <Route exact path="/opportunity/new">
+                  <NewOpportunity
+                    currentUserId={currentUserObs.id}
+                    opportunityTypes={D.opportunityTypes()}
+                  />
                 </Route>
-                <Route path="/opportunity/edit/:opportunityId">
+                <Route exact path="/opportunity/edit/:opportunityId">
                   <EditOpportunity />
                 </Route>
-                <Route path="/opportunity-type/:opportunityTypeId">
+                <Route exact path="/opportunity/:opportunityId">
+                  <ViewOpportunity />
+                </Route>
+                <Route exact path="/opportunity-type/:opportunityTypeId">
                   <NewOpportunityType />
                 </Route>
               </Dashboard>

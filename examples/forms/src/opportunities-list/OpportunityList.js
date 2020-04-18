@@ -3,6 +3,7 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
 import Typography from '@material-ui/core/Typography'
+import { useHistory } from 'react-router-dom'
 
 const { WithData } = require('unlogic-ui')
 const simpleSvgPlaceholder = require('@cloudfour/simple-svg-placeholder')
@@ -28,12 +29,15 @@ const useStyles = makeStyles(theme => ({
 const OpportunityList = WithData(({ opportunities }) => {
   const classes = useStyles()
   opportunities = opportunities || []
+  const history = useHistory()
 
   return (
     <Grid container direction="row" spacing={5}>
       {opportunities.map(opportunity => {
         return (
-          <Grid xs={4} item key={opportunity.id}>
+          <Grid xs={4} item key={opportunity.id} onClick={() => 
+            history.push(`/opportunity/${opportunity.id}`)
+          }>
             <Paper
               className={classes.opportunityContainer}              
             >

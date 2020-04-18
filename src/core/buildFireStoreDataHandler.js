@@ -22,20 +22,19 @@ const fakeEmptyFirestore = () => ({
 const buildFirestoreDataHandler = firestoreOrObs => {
   const firestoreObs = obsOrStatic(firestoreOrObs)
 
+  const addIdToCollectionItems = collection =>
+    collection.map(snapshot =>
+      Object.assign(snapshot.data(), { id: snapshot.id })
+    )
+
   const dataObs = firestoreObs.pipe(
     mergeMap(firestore => {
       if (firestore.add) {
-        return collection(firestore)
+        return collection(firestore).pipe(map(addIdToCollectionItems))
       } else if (firestore.collection) {
         return doc(firestore)
       } else if (firestore.onSnapshot) {
-        return collection(firestore).pipe(
-          map(collection => {
-            return collection.map(snapshot =>
-              Object.assign(snapshot.data(), { id: snapshot.idid })
-            )
-          })
-        )
+        return collection(firestore).pipe(map(addIdToCollectionItems))
       } else {
         return Observable.throw("Can't subscribe to the root")
       }

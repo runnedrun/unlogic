@@ -9,7 +9,7 @@ import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem'
 import { useParams } from 'react-router-dom'
 import { styled } from '@material-ui/core/styles'
-import { compose, spacing, palette } from '@material-ui/system'
+import { compose, spacing, palette, flexbox } from '@material-ui/system'
 import FileUploader from 'react-firebase-file-uploader'
 
 const FormBuilder = require('../components/form-builder/index')
@@ -30,7 +30,7 @@ const useStyles = makeStyles(theme => ({
   },
 }))
 
-const Box = styled(Grid)(compose(spacing, palette))
+const Box = styled(Grid)(compose(spacing, palette, flexbox))
 
 const EditOpportunity = WithData(
   ({
@@ -42,8 +42,7 @@ const EditOpportunity = WithData(
     opportunity = opportunity || {}
     opportunityTypeForOpportunity = opportunityTypeForOpportunity || {}
     opportunityTypes = opportunityTypes || []
-    const typeJson = (opportunityTypeForOpportunity || {}).formJSON
-    const typeJsonData = JSON.parse(typeJson || '[]')
+    const typeJsonData = (opportunityTypeForOpportunity || {}).formFields || []
 
     const classes = useStyles()
 
@@ -54,7 +53,6 @@ const EditOpportunity = WithData(
     }
 
     const handleBannerImageUploadSuccess = filename => {
-      console.log('filenam', filename)
       firebase
         .storage()
         .ref('banner-images')
@@ -69,7 +67,7 @@ const EditOpportunity = WithData(
       <Grid container justify="center">
         <Grid xs={8} item>
           <Paper>
-            <Box container justify="center" direction="column" p={2}>
+            <Box container justifyContent="center" direction="column" p={2}>
               <Grid item>
                 <Typography variant="h5">Basic Information</Typography>
               </Grid>

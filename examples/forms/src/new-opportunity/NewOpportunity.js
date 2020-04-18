@@ -23,8 +23,7 @@ const useStyles = makeStyles(theme => ({
 }))
 const Box = styled(Grid)(compose(spacing, palette))
 
-const NewOpportunity = WithData(({ opportunityTypes, currentUserId }) => {
-  console.log("curre", currentUserId, opportunityTypes)
+const NewOpportunity = WithData(({ opportunityTypes, currentUserId }) => {  
   const history = useHistory()
   const classes = useStyles()  
   const [opportunityName, setOpportunityName] = React.useState()

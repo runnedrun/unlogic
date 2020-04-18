@@ -68,7 +68,7 @@ class ReactFormBuilder extends React.Component {
               saveUrl={this.props.saveUrl}
               onLoad={this.props.onLoad}
               onPost={this.props.onPost}
-              editModeOn={this.editModeOn}
+              editModeOn={this.editModeOn.bind(this)}
               editMode={this.state.editMode}
               variables={this.props.variables}
               editElement={this.state.editElement}

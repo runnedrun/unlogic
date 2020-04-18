@@ -450,9 +450,7 @@ export default class FormElementsEdit extends React.Component {
           </div>
         ) : (
           <div />
-        )}
-
-        {console.log("test", this.props.element)}
+        )}        
 
         {this.props.element.canHaveAnswer || this.props.element.canHaveOptionValue || this.props.element.canHaveOptionCorrect ? (
           <div className="form-group">
