@@ -4,7 +4,6 @@
 
 import React from 'react'
 import update from 'immutability-helper'
-import store from './stores/store'
 import FormElementsEdit from './form-elements-edit'
 import SortableFormElements from './sortable-form-elements'
 import { withStyles } from '@material-ui/core/styles'
@@ -14,9 +13,6 @@ const { PlaceHolder } = SortableFormElements
 class Preview extends React.Component {
   constructor(props) {
     super(props)
-
-    const { onLoad, onPost } = props
-    store.setExternalHandler(onLoad, onPost)
 
     this.editForm = React.createRef()
     this.state = {
@@ -29,17 +25,8 @@ class Preview extends React.Component {
     this.insertCard = this.insertCard.bind(this)
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (this.props.data !== nextProps.data) {
-      store.dispatch('updateOrder', nextProps.data)
-    }
-  }
-
   componentDidMount() {
-    const onUpdate = this._onChange.bind(this)
-    store.subscribe(state => onUpdate(state.data))
     const { data, url, saveUrl } = this.props
-    store.dispatch('load', { loadUrl: url, saveUrl, data: data || [] })
     document.addEventListener('mousedown', this.editModeOff)
   }
 
@@ -67,7 +54,7 @@ class Preview extends React.Component {
   }
 
   updateElement(element) {
-    const { data } = this.state
+    const data = this.props.data
     let found = false
 
     for (let i = 0, len = data.length; i < len; i++) {
@@ -80,7 +67,7 @@ class Preview extends React.Component {
 
     if (found) {
       this.seq = this.seq > 100000 ? 0 : this.seq + 1
-      store.dispatch('updateOrder', data)
+      this.props.store.dispatch('updateOrder', data)
     }
   }
 
@@ -94,23 +81,22 @@ class Preview extends React.Component {
     })
 
     this.setState({
-      data,
       answer_data,
     })
   }
 
   _onDestroy(item) {
-    store.dispatch('delete', item)
+    this.props.store.dispatch('delete', item)
   }
 
   insertCard(item, hoverIndex) {
-    const { data } = this.state
+    const data = this.props.data
     data.splice(hoverIndex, 0, item)
     this.saveData(item, hoverIndex, hoverIndex)
   }
 
   moveCard(dragIndex, hoverIndex) {
-    const { data } = this.state
+    const data = this.props.data
     const dragCard = data[dragIndex]
     this.saveData(dragCard, dragIndex, hoverIndex)
   }
@@ -121,16 +107,14 @@ class Preview extends React.Component {
   }
 
   saveData(dragCard, dragIndex, hoverIndex) {
-    const newData = update(this.state, {
-      data: {
-        $splice: [
-          [dragIndex, 1],
-          [hoverIndex, 0, dragCard],
-        ],
-      },
+    const newData = update(this.props.data, {      
+      $splice: [
+        [dragIndex, 1],
+        [hoverIndex, 0, dragCard],
+      ],
     })
-    this.setState(newData)
-    store.dispatch('updateOrder', newData.data)
+
+    this.props.store.dispatch('updateOrder', newData)
   }
 
   getElement(item, index) {
@@ -149,7 +133,7 @@ class Preview extends React.Component {
         key={item.id}
         sortData={item.id}
         data={item}
-        _onDestroy={this._onDestroy}
+        _onDestroy={this._onDestroy.bind(this)}
       />
     )
   }
@@ -159,7 +143,7 @@ class Preview extends React.Component {
     if (this.props.editMode) {
       classes += ' is-editing'
     }
-    const data = this.state.data.filter(x => !!x)
+    const data = this.props.data.filter(x => !!x)
     const items = data.map((item, index) => this.getElement(item, index))
     return (
       <div className={`${classes} ${this.props.classes.preview}`}>

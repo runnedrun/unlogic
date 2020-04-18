@@ -94,8 +94,14 @@ const buildFirestoreDataHandler = firestoreOrObs => {
   dataObs.set = (...args) =>
     firestoreObs.toPromise().then(firestore => firestore.set(...args))
 
+  dataObs.update = (...args) =>
+    firestoreObs.toPromise().then(firestore => firestore.update(...args))
+
   dataObs.add = (...args) =>
     firestoreObs.toPromise().then(firestore => firestore.add(...args))
+
+  dataObs.delete = (...args) =>
+    firestoreObs.toPromise().then(firestore => firestore.delete(...args))
 
   const buildPipeFn = obs => {
     const _oldPipe = obs.pipe
@@ -104,6 +110,8 @@ const buildFirestoreDataHandler = firestoreOrObs => {
       const newObs = _oldPipe.call(obs, ...args)
       newObs.set = obs.set
       newObs.add = obs.add
+      newObs.delete = obs.delete
+      newObs.update = obs.update
       newObs.pipe = buildPipeFn(newObs)
       return newObs
     }

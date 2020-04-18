@@ -15,6 +15,7 @@ import NewOpportunity from './new-opportunity/NewOpportunity'
 import NewOpportunityType from './new-opportunity-type/NewOpportunityType'
 import EditOpportunity from './edit-opportunity/EditOpportunity'
 import { MainListItems } from './components/ListItems'
+import { ConfirmProvider } from 'material-ui-confirm';
 
 const firebase = require('firebase')
 require('firebase/firestore')
@@ -96,54 +97,56 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
   }
 
   return (
-    <Router>
-      <Switch>
-        <Route path="/signin">
-          <SignIn auth={firebase.auth()} />
-        </Route>
-        <Route path="/signup">
-          <SignUp auth={firebase.auth()} />
-        </Route>
-        {currentUser ? (
-          <Route>
-            <Dashboard
-              mainListItems={
-                <MainListItems
-                  currentUser={D.currentUserData()}
-                  opportunityTypes={D.opportunityTypes()}
-                />
-              }
-            >
-              <Route exact path="/">
-                <OpportunityList
-                  opportunities={D.opportunitiesForCurrentUser()}
-                />
-              </Route>
-              <Route path="/opportunity/new">
-                <NewOpportunity currentUserId={currentUserObs.id} opportunityTypes={D.opportunityTypes()} />
-              </Route>
-              <Route path="/opportunity/edit/:opportunityId">
-                <EditOpportunity />
-              </Route>
-              <Route path="/opportunity-type/:opportunityTypeId">
-                <NewOpportunityType />
-              </Route>
-            </Dashboard>
+    <ConfirmProvider>
+      <Router>
+        <Switch>
+          <Route path="/signin">
+            <SignIn auth={firebase.auth()} />
           </Route>
-        ) : (
-          <Route
-            render={({ location }) => (
-              <Redirect
-                to={{
-                  pathname: '/signin',
-                  state: { from: location },
-                }}
-              />
-            )}
-          />
-        )}
-      </Switch>
-    </Router>
+          <Route path="/signup">
+            <SignUp auth={firebase.auth()} />
+          </Route>
+          {currentUser ? (
+            <Route>
+              <Dashboard
+                mainListItems={
+                  <MainListItems
+                    currentUser={D.currentUserData()}
+                    opportunityTypes={D.opportunityTypes()}
+                  />
+                }
+              >
+                <Route exact path="/">
+                  <OpportunityList
+                    opportunities={D.opportunitiesForCurrentUser()}
+                  />
+                </Route>
+                <Route path="/opportunity/new">
+                  <NewOpportunity currentUserId={currentUserObs.id} opportunityTypes={D.opportunityTypes()} />
+                </Route>
+                <Route path="/opportunity/edit/:opportunityId">
+                  <EditOpportunity />
+                </Route>
+                <Route path="/opportunity-type/:opportunityTypeId">
+                  <NewOpportunityType />
+                </Route>
+              </Dashboard>
+            </Route>
+          ) : (
+            <Route
+              render={({ location }) => (
+                <Redirect
+                  to={{
+                    pathname: '/signin',
+                    state: { from: location },
+                  }}
+                />
+              )}
+            />
+          )}
+        </Switch>
+      </Router>
+    </ConfirmProvider>
   )
 })
 

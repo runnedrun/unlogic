@@ -5,7 +5,6 @@
 import React from 'react'
 import ToolbarItem from './toolbar-draggable-item'
 import ID from './UUID'
-import store from './stores/store'
 import List from '@material-ui/core/List'
 
 export default class Toolbar extends React.Component {
@@ -354,11 +353,7 @@ export default class Toolbar extends React.Component {
 
   _onClick(item) {
     // ElementActions.createElement(this.create(item));
-    store.dispatch('create', this.create(item))
-  }
-
-  componentDidMount() {
-    store.subscribe(state => this.setState({ store: state }))
+    this.props.store.dispatch('create', this.create(item))
   }
 
   render() {

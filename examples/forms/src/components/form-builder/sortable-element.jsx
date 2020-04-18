@@ -36,7 +36,7 @@ const cardTarget = {
     }
 
     // Determine rectangle on screen
-    const hoverBoundingRect = findDOMNode(component).getBoundingClientRect();
+    const hoverBoundingRect = component.cardRef.getBoundingClientRect();
 
     // Get vertical middle
     const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
@@ -99,7 +99,7 @@ export default function (ComposedComponent) {
       const opacity = isDragging ? 0 : 1;
 
       return connectDragSource(
-        connectDropTarget(<div><ComposedComponent {...this.props} style={{ ...style, opacity }}></ComposedComponent></div>),
+        connectDropTarget(<div ref={ref => this.cardRef = ref}><ComposedComponent {...this.props} style={{ ...style, opacity }}></ComposedComponent></div>),
       );
     }
   }

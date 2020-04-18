@@ -1,74 +1,34 @@
-import Store from 'beedle';
-import { get, post } from './requests';
+function Store(getData, setData) {
+  let transaction = Promise.resolve()
 
-let _saveUrl;
-let _onPost;
-let _onLoad;
+  this.setData = () => {}
 
-const store = new Store({
-  actions: {
-    setData(context, data, saveData) {
-      context.commit('setData', data);
-      if (saveData) this.save(data);
-    },
+  this.load = () => { }
 
-    load(context, { loadUrl, saveUrl, data }) {
-      _saveUrl = saveUrl;
-      if (_onLoad) {
-        _onLoad().then(x => this.setData(context, x));
-      } else if (loadUrl) {
-        get(loadUrl).then(x => {
-          if (data && data.length > 0 && x.length === 0) {
-            data.forEach(y => x.push(y));
-          }
-          this.setData(context, x);
-        });
-      } else {
-        this.setData(context, data);
-      }
-    },
+  this.create = (element) => {
+    transaction = transaction.then(() => getData().then((data) => {
+      data = data || []
+      data.push(element)
+      return setData(data)
+    }))
+  }
 
-    create(context, element) {
-      const { data } = context.state;
-      data.push(element);
-      this.setData(context, data, true);
-    },
+  this.delete = (element) => {
+    transaction = transaction.then(() => getData().then((data) => {
+      data.splice(element.index, 1)
+      return setData(data)
+    }))
+  }
 
-    delete(context, element) {
-      const { data } = context.state;
-      data.splice(data.indexOf(element), 1);
-      this.setData(context, data, true);
-    },
+  this.updateOrder = (elements) => {
+    transaction = transaction.then(() => setData(elements))
+  }
 
-    updateOrder(context, elements) {
-      this.setData(context, elements, true);
-    },
+  this.save = data => {}
 
-    save(data) {
-      if (_onPost) {
-        _onPost({ task_data: data });
-      } else if (_saveUrl) {
-        post(_saveUrl, { task_data: data });
-      }
-    },
-  },
+  this.dispatch = (actionName, args) => {
+    return this[actionName](args)
+  }
+}
 
-  mutations: {
-    setData(state, payload) {
-      // eslint-disable-next-line no-param-reassign
-      state.data = payload;
-      return state;
-    },
-  },
-
-  initialState: {
-    data: [],
-  },
-});
-
-store.setExternalHandler = (onLoad, onPost) => {
-  _onLoad = onLoad;
-  _onPost = onPost;
-};
-
-export default store;
+export default Store

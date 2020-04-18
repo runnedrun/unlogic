@@ -42,6 +42,7 @@ class ReactFormBuilder extends React.Component {
 
   render() {    
     const toolbarProps = {}
+    toolbarProps.store = this.props.store
     if (this.props.toolbarItems) {
       toolbarProps.items = this.props.toolbarItems
     }
@@ -71,6 +72,7 @@ class ReactFormBuilder extends React.Component {
               editMode={this.state.editMode}
               variables={this.props.variables}
               editElement={this.state.editElement}
+              store={this.props.store}
             />
           </Grid>
           <Grid xs={4} item>
@@ -85,8 +87,7 @@ class ReactFormBuilder extends React.Component {
 const FormBuilders = {}
 FormBuilders.ReactFormBuilder = ReactFormBuilder
 FormBuilders.ReactFormGenerator = ReactFormGenerator
-FormBuilders.ElementStore = store
 
 export default FormBuilders
 
-export { ReactFormBuilder, ReactFormGenerator, store as ElementStore }
+export { ReactFormBuilder, ReactFormGenerator }

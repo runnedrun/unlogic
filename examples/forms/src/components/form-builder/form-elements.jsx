@@ -9,6 +9,7 @@ import ReactBootstrapSlider from 'react-bootstrap-slider';
 import ReactDatePicker from 'react-datepicker';
 import StarRating from './star-rating';
 import HeaderBar from './header-bar';
+import Slider from '@material-ui/core/Slider';
 
 const FormElements = {};
 const myxss = new xss.FilterXSS({
@@ -758,7 +759,6 @@ class Camera extends React.Component {
         sourceDataURL = `data:image/png;base64,${this.props.defaultValue}`;
       }
     }
-    console.log('sourceDataURL', sourceDataURL);
     return (
       <div className={baseClasses}>
         <ComponentHeader {...this.props} />
@@ -813,13 +813,16 @@ class Range extends React.Component {
     const name = this.props.data.field_name;
 
     props.type = 'range';
-    props.list = `tickmarks_${name}`;
-    props.min = this.props.data.min_value;
-    props.max = this.props.data.max_value;
+    props.min = Number(this.props.data.min_value);
+    props.max = Number(this.props.data.max_value);
     props.step = this.props.data.step;
+    props.getAriaValueText = (value) => value
+    props.marks = true
+    props.valueLabelDisplay="auto"
 
-    props.value = this.state.value;
-    props.change = this.changeValue;
+
+    props.defaultValue = this.state.value;
+    props.onChange = this.changeValue;
 
     if (this.props.mutable) {
       props.ref = this.inputField;
@@ -857,7 +860,7 @@ class Range extends React.Component {
               <span className="pull-left">{this.props.data.min_label}</span>
               <span className="pull-right">{this.props.data.max_label}</span>
             </div>
-            <ReactBootstrapSlider {...props} />
+            <Slider {...props} />
           </div>
           <div className="visible_marks">
             {visible_marks}
