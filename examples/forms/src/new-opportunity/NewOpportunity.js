@@ -35,7 +35,7 @@ const NewOpportunity = WithData(({ opportunityTypes, currentUserId }) => {
       postingUser: currentUserId,
       type: selectedOpportunityType 
     }).then((ref) => {
-      history.push(`edit/${ref.id}`)
+      history.push(`/opportunity/edit/${ref.id}`)
     })
   }
 

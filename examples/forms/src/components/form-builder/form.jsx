@@ -62,8 +62,11 @@ export default class ReactForm extends React.Component {
       element: item.element,
       value: '',
     }
+
     if (item.element === 'Rating') {
       $item.value = ref.inputField.current.state.rating
+    } else if (item.element === 'Range') {
+      $item.value = ref.state.value
     } else if (item.element === 'Tags') {
       $item.value = ref.inputField.current.state.value
     } else if (item.element === 'DatePicker') {
@@ -72,10 +75,10 @@ export default class ReactForm extends React.Component {
       $item.value = ref.state.img
         ? ref.state.img.replace('data:image/png;base64,', '')
         : ''
-    } else if (ref && ref.inputField) {
+    } else if (ref && ref.inputField) {      
       $item = ref.inputField.current
       if (typeof $item.value === 'string') {
-        $item.value = $item.value.trim()
+        $item.value = $item.value
       }
     }
     return $item
@@ -238,9 +241,10 @@ export default class ReactForm extends React.Component {
 
   getInputElement(item) {
     const Input = FormElements[item.element]
+    
     return (
       <Input
-        handleChange={this.handleChange}
+        handleChange={this.handleChange.bind(this)}
         ref={c => (this.inputs[item.field_name] = c)}
         mutable={true}
         key={`form_${item.id}`}
@@ -254,6 +258,12 @@ export default class ReactForm extends React.Component {
   getSimpleElement(item) {
     const Element = FormElements[item.element]
     return <Element mutable={true} key={`form_${item.id}`} data={item} />
+  }
+
+  handleChange() {
+    const data = this._collectFormData(this.props.data)
+    const obj = this._convert(data)
+    this.props.setAnswers && this.props.setAnswers(obj)
   }
 
   render() {
@@ -303,7 +313,7 @@ export default class ReactForm extends React.Component {
             <Checkboxes
               ref={c => (this.inputs[item.field_name] = c)}
               read_only={this.props.read_only}
-              handleChange={this.handleChange}
+              handleChange={this.handleChange.bind(this)}
               mutable={true}
               key={`form_${item.id}`}
               data={item}
@@ -314,7 +324,7 @@ export default class ReactForm extends React.Component {
           return (
             <Image
               ref={c => (this.inputs[item.field_name] = c)}
-              handleChange={this.handleChange}
+              handleChange={this.handleChange.bind(this)}
               mutable={true}
               key={`form_${item.id}`}
               data={item}

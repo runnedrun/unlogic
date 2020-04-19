@@ -29,22 +29,22 @@ module.exports.WithData = Component => {
       const allDataSourcesMounted = Promise.all(
         Object.keys(this.props).map(propName => {
           const prop = this.props[propName]
-          prop.__uuid = prop.__uuid || uuidv4()
-          if (prop && prop.subscribe && !this.mountedForProp[prop.__uuid]) {
-            this.mountedForProp[prop.__uuid] = true
-            return new Promise(resolve => {
-              this.dataSources[propName] = prop
-              this.subscriptions[propName] = prop.subscribe(result => {
-                prop.firstResultReturned = true
-                this.setState(state => {
-                  state.data[propName] = result
-                  return state
+          if (prop) {
+            prop.__uuid = prop.__uuid || uuidv4()
+            if (prop && prop.subscribe && !this.mountedForProp[prop.__uuid]) {
+              this.mountedForProp[prop.__uuid] = true
+              return new Promise(resolve => {
+                this.dataSources[propName] = prop
+                this.subscriptions[propName] = prop.subscribe(result => {
+                  prop.firstResultReturned = true
+                  this.setState(state => {
+                    state.data[propName] = result
+                    return state
+                  })
+                  resolve()
                 })
-                resolve()
               })
-            })
-          } else {
-            return Promise.resolve()
+            }
           }
         })
       )

@@ -153,7 +153,7 @@ class TextInput extends React.Component {
         <ComponentHeader {...this.props} />
         <div className="form-group">
           <ComponentLabel {...this.props} />
-          <input {...props} />
+          <input {...props} onChange={this.props.handleChange} />
         </div>
       </div>
     );
@@ -189,7 +189,7 @@ class NumberInput extends React.Component {
         <ComponentHeader {...this.props} />
         <div className="form-group">
           <ComponentLabel {...this.props} />
-          <input {...props} />
+          <input onChange={this.props.handleChange} {...props} />
         </div>
       </div>
     );
@@ -224,7 +224,7 @@ class TextArea extends React.Component {
         <ComponentHeader {...this.props} />
         <div className="form-group">
           <ComponentLabel {...this.props} />
-          <textarea {...props} />
+          <textarea onChange={this.props.handleChange} {...props} />
         </div>
       </div>
     );
@@ -260,6 +260,12 @@ class DatePicker extends React.Component {
       });
     }
   };
+
+  componentDidUpdate(prevProps, prevState) { 
+    if (prevState.value !== this.state.value) {
+      this.props.handleChange && this.props.handleChange()
+    }
+  }
 
   updateFormat(props) {
     const { showTimeSelect, showTimeSelectOnly } = props.data;
@@ -395,7 +401,7 @@ class Dropdown extends React.Component {
         <ComponentHeader {...this.props} />
         <div className="form-group">
           <ComponentLabel {...this.props} />
-          <select {...props}>
+          <select {...props} onChange={this.props.handleChange}>
             {this.props.data.options.map((option) => {
               const this_key = `preview_${option.key}`;
               return <option value={option.value} key={this_key}>{option.text}</option>;
@@ -489,10 +495,16 @@ class Tags extends React.Component {
     return [];
   }
 
+  componentDidUpdate(prevProps, prevState) { 
+    if (prevState.value !== this.state.value) {
+      this.props.handleChange && this.props.handleChange()
+    }
+  }
+
   // state = { value: this.props.defaultValue !== undefined ? this.props.defaultValue.split(',') : [] };
 
-  handleChange = (e) => {
-    this.setState({ value: e });
+  handleChange = (e) => {    
+    this.setState({ value: e });    
   };
 
   render() {
@@ -612,7 +624,7 @@ class RadioButtons extends React.Component {
 
             return (
               <label className={classNames} key={this_key}>
-                <input ref={c => {
+                <input onChange={this.props.handleChange} ref={c => {
                   if (c && self.props.mutable) {
                     self.options[`child_ref_${option.key}`] = c;
                   }
@@ -801,11 +813,17 @@ class Range extends React.Component {
     };
   }
 
-  changeValue = (e) => {
+  changeValue = (e, newValue) => {
     const { target } = e;
     this.setState({
-      value: target.value,
+      value: newValue,
     });
+  }
+
+  componentDidUpdate(prevProps, prevState) { 
+    if (prevState.value !== this.state.value) {
+      this.props.handleChange && this.props.handleChange()
+    }
   }
 
   render() {

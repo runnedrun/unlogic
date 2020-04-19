@@ -1,6 +1,6 @@
 import { doc, collection } from 'rxfire/firestore'
 import { Observable, of, combineLatest } from 'rxjs'
-import { mergeMap, map } from 'rxjs/operators'
+import { mergeMap, map, take } from 'rxjs/operators'
 
 const obsOrStatic = val => (val.subscribe ? val : of(val))
 
@@ -21,6 +21,13 @@ const fakeEmptyFirestore = () => ({
 
 const buildFirestoreDataHandler = firestoreOrObs => {
   const firestoreObs = obsOrStatic(firestoreOrObs)
+  firestoreObs.toPromise = () => {
+    return new Promise(resolve => {
+      firestoreObs.pipe(take(1)).subscribe(value => {
+        resolve(value)
+      })
+    })
+  }
 
   const addIdToCollectionItems = collection =>
     collection.map(snapshot =>
@@ -111,7 +118,7 @@ const buildFirestoreDataHandler = firestoreOrObs => {
       newObs.add = obs.add
       newObs.delete = obs.delete
       newObs.update = obs.update
-      newObs.pipe = buildPipeFn(newObs)
+      buildPipeFn(newObs)
       return newObs
     }
   }

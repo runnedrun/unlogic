@@ -5,6 +5,7 @@ import ListItemText from '@material-ui/core/ListItemText'
 import ListSubheader from '@material-ui/core/ListSubheader'
 import DashboardIcon from '@material-ui/icons/Dashboard'
 import NewIcon from '@material-ui/icons/AddCircleOutline'
+import ProfileIcon from '@material-ui/icons/AccountCircle'
 import SettingsIcon from '@material-ui/icons/Settings'
 import ListIcon from '@material-ui/icons/List'
 import { useHistory, useLocation } from 'react-router-dom'
@@ -34,15 +35,15 @@ export const MainListItems = WithData(({ currentUser, opportunityTypes }) => {
         <ListItemIcon>
           <DashboardIcon />
         </ListItemIcon>
-        <ListItemText primary="Dashboard" />
+        <ListItemText primary="Your Opportunities" />
       </ListItem>
-      <ListItem button>
+      <ListItem button onClick={_ => history.push('/all-opportunities')}>
         <ListItemIcon>
           <ListIcon />
         </ListItemIcon>
-        <ListItemText primary="All Opportunties" />
+        <ListItemText primary="All Opportunities" />
       </ListItem>
-      <ListItem button onClick={_ => history.push('/opportunity/new')}>
+      <ListItem button onClick={_ => history.push('/new-opportunity')}>
         <ListItemIcon>
           <NewIcon />
         </ListItemIcon>
@@ -83,6 +84,12 @@ export const MainListItems = WithData(({ currentUser, opportunityTypes }) => {
       ) : (
         <span />
       )}
+      <ListItem button onClick={_ => history.push('/profile')}>
+        <ListItemIcon>
+          <ProfileIcon />
+        </ListItemIcon>
+        <ListItemText primary="Your Profile" />
+      </ListItem>
     </div>
   )
 })

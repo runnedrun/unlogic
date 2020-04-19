@@ -15,10 +15,6 @@ class Preview extends React.Component {
     super(props)
 
     this.editForm = React.createRef()
-    this.state = {
-      data: [],
-      answer_data: {},
-    }
     this.seq = 0
 
     this.moveCard = this.moveCard.bind(this)
@@ -72,17 +68,15 @@ class Preview extends React.Component {
   }
 
   _onChange(data) {
-    const answer_data = {}
+    const answerData = {}
 
     data.forEach(item => {
       if (item && item.readOnly && this.props.variables[item.variableKey]) {
-        answer_data[item.field_name] = this.props.variables[item.variableKey]
+        answerData[item.field_name] = this.props.variables[item.variableKey]
       }
     })
 
-    this.setState({
-      answer_data,
-    })
+    this.props.setAnswers && this.props.setAnswers(answerData)
   }
 
   _onDestroy(item) {
@@ -107,7 +101,7 @@ class Preview extends React.Component {
   }
 
   saveData(dragCard, dragIndex, hoverIndex) {
-    const newData = update(this.props.data, {      
+    const newData = update(this.props.data, {
       $splice: [
         [dragIndex, 1],
         [hoverIndex, 0, dragCard],

@@ -9,12 +9,13 @@ import SignIn from './auth/SignIn'
 import SignUp from './auth/SignUp'
 import OpportunityList from './opportunities-list/OpportunityList'
 import { combineLatest } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, take } from 'rxjs/operators'
 import Dashboard from './components/Dashboard'
 import NewOpportunity from './new-opportunity/NewOpportunity'
 import NewOpportunityType from './new-opportunity-type/NewOpportunityType'
 import EditOpportunity from './edit-opportunity/EditOpportunity'
 import ViewOpportunity from './view-opportunity/ViewOpportunity'
+import Profile from './profile/Profile'
 import { MainListItems } from './components/ListItems'
 import { ConfirmProvider } from 'material-ui-confirm'
 
@@ -50,6 +51,7 @@ const dataHandler = buildFirestoreDataHandler(firebase.firestore())
 const currentUserObs = buildCurrentUserListener(firebase)
 
 const D = {
+  userProfile: (userId) => dataHandler.collection('users').doc(userId),
   opportunity: id => dataHandler.collection('opportunities').doc(id),
   opportunityTypeForOpportunity: opportunityId =>
     D.opportunityType(D.opportunity(opportunityId).data('type')),
@@ -68,6 +70,9 @@ const D = {
       .collection('users')
       .doc(currentUserObs.id)
       .data('companyId'),
+  allOpportunities: () =>
+    dataHandler
+      .collection('opportunities'),
   opportunitiesForCurrentUser: () =>
     dataHandler
       .collection('opportunities')
@@ -124,7 +129,12 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
                     opportunities={D.opportunitiesForCurrentUser()}
                   />
                 </Route>
-                <Route exact path="/opportunity/new">
+                <Route exact path="/all-opportunities">
+                  <OpportunityList
+                    opportunities={D.allOpportunities()}
+                  />
+                </Route>
+                <Route exact path="/new-opportunity">
                   <NewOpportunity
                     currentUserId={currentUserObs.id}
                     opportunityTypes={D.opportunityTypes()}
@@ -138,6 +148,9 @@ const RoutesWithAuth = WithData(({ currentUser, dataSources }) => {
                 </Route>
                 <Route exact path="/opportunity-type/:opportunityTypeId">
                   <NewOpportunityType />
+                </Route>
+                <Route exact path="/profile">
+                  <Profile opportunityTypes={D.opportunityTypes()} userProfile={D.userProfile(currentUserObs.id).data()}/>
                 </Route>
               </Dashboard>
             </Route>

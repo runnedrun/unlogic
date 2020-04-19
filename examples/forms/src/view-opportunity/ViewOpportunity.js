@@ -9,7 +9,13 @@ import TextField from '@material-ui/core/TextField'
 import MenuItem from '@material-ui/core/MenuItem'
 import { useParams } from 'react-router-dom'
 import { styled } from '@material-ui/core/styles'
-import { compose, spacing, palette, flexbox, display } from '@material-ui/system'
+import {
+  compose,
+  spacing,
+  palette,
+  flexbox,
+  display,
+} from '@material-ui/system'
 import FileUploader from 'react-firebase-file-uploader'
 import Trash from '@material-ui/icons/Delete'
 import Edit from '@material-ui/icons/Edit'
@@ -40,6 +46,7 @@ const ViewOpportunity = WithData(
     opportunity,
     dataSources,
     currentUserId,
+    currentUserProfile,
     opportunityTypeForOpportunity,
   }) => {
     opportunity = opportunity || {}
@@ -47,6 +54,13 @@ const ViewOpportunity = WithData(
     const classes = useStyles()
     const typeJsonData = (opportunityTypeForOpportunity || {}).formFields || []
     const history = useHistory()
+
+    const userProfileAnswers = currentUserProfile.profileAnswers || {}
+    const userProfileAnswersForType =
+      userProfileAnswers[opportunityTypeForOpportunity.id] || {}
+    Object.keys(userProfileAnswersForType).map(fieldName => {
+      userProfileAnswersForType[fieldName] = JSON.parse(userProfileAnswersForType[fieldName])
+    })
 
     const defaults = {
       bgColor: '#0F1C3F',
@@ -67,12 +81,14 @@ const ViewOpportunity = WithData(
     }
 
     const editButtons = userIsOwner ? (
-      <Box  display="flex" alignItems="center">
+      <Box display="flex" alignItems="center">
         <Box item mr={2}>
           <Trash onClick={deleteOpportunity} />
         </Box>
         <Box item>
-          <Edit onClick={() => history.push(`/opportunity/edit/${opportunity.id}`)} />
+          <Edit
+            onClick={() => history.push(`/opportunity/edit/${opportunity.id}`)}
+          />
         </Box>
       </Box>
     ) : (
@@ -115,7 +131,21 @@ const ViewOpportunity = WithData(
                   </Box>
                   <Box>
                     <FormBuilder.ReactFormGenerator
-                      answer_data={{}}
+                      answer_data={userProfileAnswersForType}
+                      setAnswers={answers => {
+                        Object.keys(answers).forEach(fieldName => {
+                          answers[fieldName] = JSON.stringify(
+                            answers[fieldName]
+                          )
+                        })
+                        const updateObj = { profileAnswers: {} }
+                        updateObj.profileAnswers[
+                          opportunityTypeForOpportunity.id
+                        ] = answers
+                        // todo make a separate application object here.
+
+                        dataSources.currentUserProfile.update(updateObj)
+                      }}
                       data={typeJsonData}
                       hide_actions
                     />
@@ -144,6 +174,7 @@ const ViewOpportunityPage = () => {
       ).data()}
       opportunity={window.D.opportunity(opportunityId).data()}
       currentUserId={window.currentUserObs.id}
+      currentUserProfile={window.D.userProfile(window.currentUserObs.id).data()}
     />
   )
 }

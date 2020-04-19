@@ -476,7 +476,7 @@ export default class FormElementsEdit extends React.Component {
         )}
 
 
-        {this.props.element.canHaveAnswer ? (
+        {this.props.element.canHaveAnswer || this.props.element.canHaveOptionValue || this.props.element.canHaveOptionCorrect ? (
           <div className="form-group">
             <label className="control-label">Applicant Options</label>
             <div className="checkbox">
@@ -669,7 +669,7 @@ export default class FormElementsEdit extends React.Component {
             showCorrectColumn={this.props.showCorrectColumn}
             canHaveOptionCorrect={canHaveOptionCorrect}
             canHaveOptionValue={canHaveOptionValue}
-            data={this.props.preview.state.data}
+            data={this.props.preview.data}
             updateElement={this.props.updateElement}
             preview={this.props.preview}
             element={this.props.element}
