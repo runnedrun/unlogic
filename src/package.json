@@ -14,14 +14,13 @@
         "lodash": "^4.17.5",
         "lodash.clonedeep": "*",
         "lodash.isequal": "*",
+        "mini-css-extract-plugin": "^0.4.1",
         "moment": "*",
-        "react": "^15.6.2",
         "react-datepicker": "^1.4.1",
         "react-dnd": "^2.5.4",
         "react-dnd-html5-backend": "^2.5.4",
-        "react-dom": "^15.6.2",
         "react-dropdown": "*",
-        "mini-css-extract-plugin": "^0.4.1"
+        "rxjs": "^6.5.5"
     },
     "devDependencies": {
         "@webpack-cli/migrate": "^0.1.0",

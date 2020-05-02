@@ -1,4 +1,4 @@
-const React = require('React')
+const React = require('react')
 const _ = require('underscore')
 import { v4 as uuidv4 } from 'uuid'
 
