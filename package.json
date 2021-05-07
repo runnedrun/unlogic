@@ -8,7 +8,7 @@
     "react-spreadsheet": "^0.4.46",
     "rxfire": "^3.10.1",
     "rxjs": "^6.5.4",
-    "underscore": "^1.10.2"
+    "underscore": "^1.12.1"
   },
   "prettier": {
     "trailingComma": "es5",
